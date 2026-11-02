@@ -101,7 +101,7 @@ as Tailwind utilities in `frontend/tailwind.config.js`.
 * The **answer card is the first thing below the header** on every viewport.
   Once a result exists it sits **above** the controls.
 * On the first load the controls are open; once a result exists they collapse
-  into a summary bar ("Metro · M1 Blue Line · Typical weekday 08:00 · Change")
+  into a summary bar ("Metro · M1 Azure Line · Typical weekday 08:00 · Change")
   that expands when tapped.
 * Touch targets are at least **44 × 44 px** (the `.btn` class has
   `min-h-[44px]`).

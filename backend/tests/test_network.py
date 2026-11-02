@@ -31,31 +31,31 @@ from navacity_core.network import (
 #: The metro lines must keep their ids and their station order.
 EXPECTED_METRO = {
     "M1": [
-        "NavaCity Central", "Mahatma Nagar", "City Park", "Saraswati Junction",
-        "Tech Park Gate", "Aerodrome Interchange", "Whitefield Depot",
+        "Central Exchange", "Riverside", "Civic Park", "Civic Center",
+        "Tech Park", "Aerodrome", "Northpoint",
     ],
     "M2": [
-        "Riverfront", "Gandhi Chowk", "Lalbagh", "Vidhana Soudha",
-        "NavaCity Central", "Market Yard", "Old Town Gate", "Hill View",
+        "Rivergate", "Heritage Square", "Garden Station", "Government Plaza",
+        "Central Exchange", "Market Station", "Heritage Gate", "Hillcrest",
     ],
     "M3": [
-        "Hebbal Farm", "Yelahanka New Town", "Kogilu Cross",
-        "Indira Nagar 2nd Stage", "Domlur Flyover", "Laxmi Road",
-        "NavaCity Central", "Chinnaswamy Park",
+        "North Farm", "Northgate", "Crossroads",
+        "Riverside Heights", "Riverside Junction", "Grand Avenue",
+        "Central Exchange", "Stadium",
     ],
     "M4": [
-        "Peenya Industrial Area", "Jnanabharathi Circle", "Yeshwanthpur",
-        "Majestic", "KR Market", "NavaCity Central", "Hosahalli", "Silk Board",
+        "Industrial District", "West Circle", "North Terminal",
+        "Grand Central", "Central Market", "Central Exchange", "West End", "South Terminal",
     ],
     "M5": [
-        "Bannerghatta Road", "HSR Layout Sector 2", "BTM Layout",
-        "Jayanagar 4th Block", "South End", "NavaCity Central", "Banashankari",
-        "Padmanabha Nagar",
+        "Banner Hill", "Lakeside", "Millfield",
+        "Oakwood", "Sunnyvale", "Central Exchange", "Pinecrest",
+        "Maplewood",
     ],
     "M6": [
-        "Devanahalli", "Kempegowda Intl Airport", "Hebbal Flyover",
-        "Bellandur Lake", "Kadugodi Tree Park", "Marathahalli Bridge",
-        "Silk Board", "NavaCity Central",
+        "Airport North", "NavaCity Intl Airport", "Aviation Park",
+        "Lakeview", "Evergreen Park", "Millbridge",
+        "South Terminal", "Central Exchange",
     ],
 }
 
@@ -63,46 +63,46 @@ EXPECTED_METRO = {
 #: stop order must not change.
 EXPECTED_BUS_LEGACY = {
     "B01": [
-        "Kempegowda Intl Airport", "Hebbal Flyover", "Bellandur Lake",
-        "Marathahalli Bridge", "Domlur Flyover", "Laxmi Road",
-        "Vidhana Soudha", "Majestic",
+        "NavaCity Intl Airport", "Aviation Park", "Lakeview",
+        "Millbridge", "Riverside Junction", "Grand Avenue",
+        "Government Plaza", "Grand Central",
     ],
     "B02": [
-        "Old Town Gate", "Hill View", "Gandhi Chowk", "Riverfront",
-        "Market Yard", "Gandhi Chowk", "Old Town Gate",
+        "Heritage Gate", "Hillcrest", "Heritage Square", "Rivergate",
+        "Market Station", "Heritage Square", "Heritage Gate",
     ],
     "B03": [
-        "Whitefield Depot", "Brookefield Gate", "Kundalahalli Gate",
-        "Brookefield Circle", "ITPL Tech Park", "Tech Park Gate",
-        "Saraswati Junction", "City Park",
+        "Northpoint", "East Gate", "Transit Hub",
+        "Brookside", "Innovator Park", "Tech Park",
+        "Civic Center", "Civic Park",
     ],
     "B04": [
-        "Devanahalli", "Kempegowda Intl Airport", "Bellandur Lake",
-        "Kadugodi Tree Park", "Marathahalli Bridge",
+        "Airport North", "NavaCity Intl Airport", "Lakeview",
+        "Evergreen Park", "Millbridge",
     ],
     "B05": [
-        "Bannerghatta Road", "HSR Layout Sector 2", "BTM Layout",
-        "Jayanagar 4th Block", "South End", "Banashankari", "Padmanabha Nagar",
+        "Banner Hill", "Lakeside", "Millfield",
+        "Oakwood", "Sunnyvale", "Pinecrest", "Maplewood",
     ],
     "B06": [
-        "Hebbal Farm", "Yelahanka New Town", "Kogilu Cross",
-        "Indira Nagar 2nd Stage", "Domlur Flyover", "Laxmi Road",
+        "North Farm", "Northgate", "Crossroads",
+        "Riverside Heights", "Riverside Junction", "Grand Avenue",
     ],
     "B07": [
-        "KR Market", "NavaCity Central Bus Depot", "Vidhana Soudha",
-        "Lalbagh", "Jayanagar 4th Block", "KR Market",
+        "Central Market", "Central Depot", "Government Plaza",
+        "Garden Station", "Oakwood", "Central Market",
     ],
     "B08": [
-        "Peenya Industrial Area", "Jnanabharathi Circle", "Yeshwanthpur",
-        "Majestic", "NavaCity Central Bus Depot",
+        "Industrial District", "West Circle", "North Terminal",
+        "Grand Central", "Central Depot",
     ],
     "B09": [
-        "Kadugodi Tree Park", "Bellandur Lake", "Marathahalli Bridge",
-        "Silk Board", "Jayanagar 4th Block", "Banashankari",
+        "Evergreen Park", "Lakeview", "Millbridge",
+        "South Terminal", "Oakwood", "Pinecrest",
     ],
     "B10": [
-        "Jnanabharathi Circle", "Yeshwanthpur", "KR Market",
-        "NavaCity Central Bus Depot", "Vidhana Soudha", "Jnanabharathi Circle",
+        "West Circle", "North Terminal", "Central Market",
+        "Central Depot", "Government Plaza", "West Circle",
     ],
 }
 

@@ -206,8 +206,8 @@ def test_the_public_prediction_endpoint_stays_open(client):
 def test_the_alternatives_endpoint_stays_open(client):
     response = client.get(
         "/api/alternatives?route_id=M1"
-        "&origin_id=ST-navacitycentral"
-        "&destination_id=ST-whitefielddepot&hour=8"
+        "&origin_id=ST-centralexchange"
+        "&destination_id=ST-northpoint&hour=8"
     )
     assert response.status_code == 200
 

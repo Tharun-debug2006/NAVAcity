@@ -70,8 +70,8 @@ def main() -> int:
              ["count", "disclaimer"])
         show("GET /api/alternatives", client.get(
             "/api/alternatives?route_id=M1"
-            "&origin_id=ST-navacitycentral"
-            "&destination_id=ST-whitefielddepot&hour=8"))
+            "&origin_id=ST-centralexchange"
+            "&destination_id=ST-northpoint&hour=8"))
         show("GET /api/model/metrics", client.get("/api/model/metrics", headers=headers),
              ["dataset", "split"])
         show("GET /api/openapi.json", client.get("/openapi.json"), ["openapi"])

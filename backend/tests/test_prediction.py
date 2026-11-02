@@ -187,11 +187,11 @@ def test_prediction_day_endpoint(client):
 def test_alternatives_endpoint(client):
     payload = client.get(
         "/api/alternatives?route_id=M1"
-        "&origin_id=ST-navacitycentral"
-        "&destination_id=ST-whitefielddepot&hour=8"
+        "&origin_id=ST-centralexchange"
+        "&destination_id=ST-northpoint&hour=8"
     ).json()
     assert payload["requested_route"] == "M1"
-    assert payload["origin"] == "NavaCity Central"
+    assert payload["origin"] == "Central Exchange"
     for alternative in payload["alternatives"]:
         assert alternative["route_id"] != "M1"
         assert alternative["crowd_level"] in ("Low", "Moderate", "High", "Critical")
@@ -200,6 +200,6 @@ def test_alternatives_endpoint(client):
 
 def test_alternatives_reject_an_unknown_place(client):
     response = client.get(
-        "/api/alternatives?route_id=M1&origin_id=NOPE&destination_id=ST-whitefielddepot"
+        "/api/alternatives?route_id=M1&origin_id=NOPE&destination_id=ST-northpoint"
     )
     assert response.status_code == 404

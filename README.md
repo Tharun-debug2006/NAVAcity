@@ -265,7 +265,7 @@ four sampled hours of a day, and the mean of a stretch-hour is an average over
 * **Weekends** — flatter profile, lower morning peak, more midday and evening leisure
   travel.
 * **Holidays** — about 28 % less demand than a normal working day.
-* **Route popularity** — each route has a fixed relative weight (e.g. the Red Line
+* **Route popularity** — each route has a fixed relative weight (e.g. the Crimson Line
   1.12, the Lake View Nightline 0.55).
 * **Segment taper** — central segments of a line carry more passengers than the outer
   ones (a sine-shaped taper).
@@ -571,11 +571,11 @@ curl -X POST http://localhost:8000/api/predict `
 ```json
 {
   "route_id": "M1",
-  "route_name": "Blue Line",
+  "route_name": "Azure Line",
   "mode": "metro",
   "segment_id": "M1-S06",
-  "origin_name": "Aerodrome Interchange",
-  "dest_name": "Whitefield Depot",
+  "origin_name": "Aerodrome",
+  "dest_name": "Northpoint",
   "date": "2025-06-30",
   "hour": 8,
   "predicted_passengers": 2490,
@@ -690,7 +690,7 @@ wait?"*, and it is answered **first**.
 | Order | What the passenger sees |
 |---|---|
 | 1 | **The answer card** — the crowd level as a large badge with an icon shape *and* a text label, one plain sentence ("Expect a moderately crowded train at 08:00. You may wait a few minutes for space."), the expected wait, the ride time, the total journey time and the occupancy bar with the 40 / 65 / 85 % thresholds marked. |
-| 2 | **The controls** — a Metro \| Bus switch, the route list of that mode only ("M1 · Blue Line"), a From / To station picker with a swap button, a "Leave at" hour and a date picker limited to the supported range, plus a "Typical weekday" button. Once a result exists they collapse into a one-line summary. |
+| 2 | **The controls** — a Metro \| Bus switch, the route list of that mode only ("M1 · Azure Line"), a From / To station picker with a swap button, a "Leave at" hour and a date picker limited to the supported range, plus a "Typical weekday" button. Once a result exists they collapse into a one-line summary. |
 | 3 | **Less crowded alternatives** — up to three options from the same mode first, then the cross-mode options, each with the total journey time, the crowd level, the number of changes and how much faster or slower it is than the route that was chosen. |
 | 4 | **"Expected crowd by hour"** — a 24-hour chart in passengers per hour, with the chosen hour marked and the bar colour carrying the crowd level. |
 | 5 | **The network map** — a collapsible section with the station names and the selected route highlighted. |
@@ -735,7 +735,7 @@ answer **401** without one.
 ## 11. Demo script (5 minutes)
 
 1. **Start the backend and the frontend** using the commands in section 3.
-2. **Open <http://localhost:5173>** — the public dashboard loads with the Blue Line
+2. **Open <http://localhost:5173>** — the public dashboard loads with the Azure Line
    (M1) selected and the 08:00 forecast for tomorrow. The amber banner and the header
    badge state that the data is simulated.
 3. **Change the time to 18:00** — the predicted demand, the occupancy bar, the crowd

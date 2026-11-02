@@ -12,22 +12,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand / metro family (indigo).
+        // Brand / primary navy family.
         metro: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          600: '#4f46e5',
-          700: '#1d3fbf',
-          800: '#1e3a8a',
+          50: '#eef5fb',
+          100: '#dceaf5',
+          200: '#bfd2e5',
+          600: '#174a7c',
+          700: '#12305a',
+          800: '#0b2344',
         },
-        // Bus family (amber).
+        // Transit teal family.
         bus: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          600: '#b7791f',
-          700: '#92400e',
+          50: '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          600: '#0f766e',
+          700: '#115e59',
         },
         // Crowd levels.  Always used together with a text label.
         crowd: {
@@ -48,8 +48,6 @@ export default {
           'Segoe UI',
           'Roboto',
           'Noto Sans',
-          'Noto Sans Devanagari',
-          'Noto Sans Kannada',
           'sans-serif',
         ],
       },

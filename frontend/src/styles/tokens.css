@@ -7,8 +7,8 @@
  * dashboard full of decoration.
  *
  * Rules that the whole application follows:
- *   * metro family  = indigo   (lines, primary actions)
- *   * bus family    = amber    (routes, dashed on the map)
+ *   * primary family = navy    (navigation and primary actions)
+ *   * transit family = teal    (bus routes and secondary actions)
  *   * crowd levels  = emerald / sky / orange / red, ALWAYS with a text label
  *     and an icon shape, never colour alone
  *   * the simulated-data banner is the same amber notice on every page
@@ -16,21 +16,21 @@
 
 :root {
   /* ---------------------------------------------------------------- */
-  /* Brand / metro family                                              */
+   /* Brand / primary navy family                                       */
   /* ---------------------------------------------------------------- */
-  --nc-metro: #1d3fbf;          /* indigo-700 */
-  --nc-metro-strong: #1e3a8a;
-  --nc-metro-soft: #eef2ff;     /* indigo-50 */
-  --nc-metro-border: #c7d2fe;
-  --nc-focus: #4f46e5;          /* indigo-600, focus ring */
+  --nc-metro: #12305a;
+  --nc-metro-strong: #0b2344;
+  --nc-metro-soft: #eef5fb;
+  --nc-metro-border: #bfd2e5;
+  --nc-focus: #0f766e;
 
   /* ---------------------------------------------------------------- */
-  /* Bus family                                                       */
+   /* Transit teal family                                              */
   /* ---------------------------------------------------------------- */
-  --nc-bus: #b7791f;            /* amber-600 */
-  --nc-bus-strong: #92400e;
-  --nc-bus-soft: #fffbeb;       /* amber-50 */
-  --nc-bus-border: #fde68a;
+  --nc-bus: #0f766e;
+  --nc-bus-strong: #115e59;
+  --nc-bus-soft: #f0fdfa;
+  --nc-bus-border: #99f6e4;
 
   /* ---------------------------------------------------------------- */
   /* Crowd levels (always paired with a label and an icon shape)       */
@@ -82,8 +82,8 @@
   /* ---------------------------------------------------------------- */
   /* Typography                                                       */
   /* ---------------------------------------------------------------- */
-  --nc-font-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Noto Sans',
-    'Noto Sans Devanagari', 'Noto Sans Kannada', sans-serif;
+  --nc-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Noto Sans', sans-serif;
   --nc-font-size-xs: 12px;
   --nc-font-size-sm: 14px;
   --nc-font-size-base: 16px;

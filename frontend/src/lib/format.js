@@ -1,25 +1,25 @@
 /**
  * The one number-formatting helper of the application.
  *
- * Indian grouping is used everywhere (the audience is Bengaluru-based), so
- * 64866540 is written as "6,48,66,540" and 2408 as "2,408".  Every screen
+ * NavaCity uses a neutral English locale so fictional passenger figures stay
+ * readable and do not imply a real-world city or audience. Every screen
  * imports this file - there is no second implementation.
  */
 
-const INDIAN_GROUPED = new Intl.NumberFormat('en-IN')
+const NUMBER_FORMAT = new Intl.NumberFormat('en-US')
 
-/** Format a number with Indian grouping (2,408 / 6,48,66,540). */
+/** Format a number with standard grouping (2,408 / 64,866,540). */
 export function formatNumber(value, options = {}) {
   const numeric = Number(value)
   if (!Number.isFinite(numeric)) return '0'
-  return INDIAN_GROUPED.format(Math.round(numeric))
+  return NUMBER_FORMAT.format(Math.round(numeric))
 }
 
-/** Format a number with a fixed number of decimals and Indian grouping. */
+/** Format a number with a fixed number of decimals and standard grouping. */
 export function formatDecimal(value, decimals = 1) {
   const numeric = Number(value)
   if (!Number.isFinite(numeric)) return (0).toFixed(decimals)
-  return numeric.toLocaleString('en-IN', {
+  return numeric.toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   })
