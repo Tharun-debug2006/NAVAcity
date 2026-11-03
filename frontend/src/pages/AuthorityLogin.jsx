@@ -45,7 +45,6 @@ export default function AuthorityLogin() {
     }
   }
 
-  const demoMode = config?.demo_mode === true
   const notConfigured = config && config.configured === false
 
   return (
@@ -90,16 +89,6 @@ export default function AuthorityLogin() {
           </div>
         )}
 
-        {demoMode && (
-          <div className="mt-4 rounded-control border border-metro-200 bg-metro-50 p-3 text-xs text-metro-800">
-            <p className="font-semibold">Local demo mode</p>
-            <p className="mt-1">
-              The server accepts the well-known local demo password, which is
-              documented in the README. Never use this mode in a real deployment.
-            </p>
-          </div>
-        )}
-
         <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="label" htmlFor="authority-password">
@@ -138,7 +127,7 @@ export default function AuthorityLogin() {
 
           <button
             type="submit"
-            className="btn-primary w-full"
+            className="btn w-full bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
             disabled={busy || !password || notConfigured}
           >
             {busy ? 'Signing in…' : 'Sign in'}
@@ -146,12 +135,6 @@ export default function AuthorityLogin() {
         </form>
 
         <div className="mt-5 border-t border-slate-100 pt-4">
-          <p className="text-[11px] leading-relaxed text-slate-500">
-            The password is verified by the FastAPI backend and is never stored in the
-            browser. The session token is kept in memory only, expires after{' '}
-            {config?.session_minutes ?? 60} minutes and is rejected by the server as soon
-            as you sign out.
-          </p>
           <button
             type="button"
             className="btn-ghost mt-3 w-full"

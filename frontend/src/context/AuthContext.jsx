@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import {
   api,
   clearAuthToken,
+  hasAuthToken,
+  getAuthToken,
   errorMessage,
   isAuthUnavailable,
   isUnauthorized,
@@ -19,7 +21,7 @@ import {
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [status, setStatus] = useState('anonymous') // anonymous | checking | authenticated
+  const [status, setStatus] = useState(() => hasAuthToken() ? 'authenticated' : 'anonymous')
   const [session, setSession] = useState(null)
   const [config, setConfig] = useState(null)
   const [error, setError] = useState(null)
@@ -65,18 +67,13 @@ export function AuthProvider({ children }) {
   )
 
   // ---- Sign out --------------------------------------------------------
-  const signOut = useCallback(async () => {
-    setBusy(true)
-    try {
-      await api.logout()
-    } catch {
-      // The token may already be invalid; the local state is cleared anyway.
-    } finally {
-      clearAuthToken()
-      setSession(null)
-      setStatus('anonymous')
-      setBusy(false)
-    }
+  const signOut = useCallback(() => {
+    const token = getAuthToken()
+    clearAuthToken()
+    setSession(null)
+    setStatus('anonymous')
+    setBusy(false)
+    void api.logout(token).catch(() => {})
   }, [])
 
   // ---- The session was rejected by the server --------------------------
@@ -84,6 +81,12 @@ export function AuthProvider({ children }) {
     clearAuthToken()
     setSession(null)
     setStatus('anonymous')
+  }, [])
+
+  useEffect(() => {
+    localStorage.removeItem('navacity_authority_token')
+    sessionStorage.removeItem('navacity_authority_token')
+    if (!hasAuthToken()) { setStatus('anonymous'); clearAuthToken() }
   }, [])
 
   // ---- Restore a session that is still valid on the server ------------
@@ -126,9 +129,7 @@ export function AuthProvider({ children }) {
 
   // On mount: read the public auth configuration and try to restore a session
   // that the backend still accepts.
-  useEffect(() => {
-    restore()
-  }, [restore])
+  useEffect(() => { loadConfig() }, [loadConfig])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

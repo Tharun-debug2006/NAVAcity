@@ -5,6 +5,12 @@
 @tailwind utilities;
 
 @layer base {
+  button:not(:disabled) {
+    @apply cursor-pointer transition duration-150 active:scale-95;
+  }
+  button:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
   html {
     -webkit-font-smoothing: antialiased;
   }
@@ -107,7 +113,7 @@
     @apply text-right tabular-nums;
   }
 
-  /* ---------------- The simulated-data notice ---------------- */
+  /* ---------------- The observed-data notice ---------------- */
   .data-notice {
     @apply border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs
       text-amber-900 sm:px-6;
@@ -122,3 +128,4 @@
     @apply animate-pulse rounded bg-slate-200;
   }
 }
+

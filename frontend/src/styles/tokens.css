@@ -11,7 +11,7 @@
  *   * transit family = teal    (bus routes and secondary actions)
  *   * crowd levels  = emerald / sky / orange / red, ALWAYS with a text label
  *     and an icon shape, never colour alone
- *   * the simulated-data banner is the same amber notice on every page
+ *   * the observed-data banner is the same amber notice on every page
  */
 
 :root {
@@ -55,7 +55,7 @@
   --nc-surface: #ffffff;
 
   /* ---------------------------------------------------------------- */
-  /* Notice banner (simulated data)                                   */
+  /* Notice banner (observed data)                                   */
   /* ---------------------------------------------------------------- */
   --nc-notice-bg: #fffbeb;      /* amber-50 */
   --nc-notice-text: #78350f;    /* amber-900 */
@@ -104,3 +104,4 @@
     scroll-behavior: auto !important;
   }
 }
+

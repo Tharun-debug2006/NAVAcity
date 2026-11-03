@@ -1,0 +1,3 @@
+export default function Sidebar({ items, active, onChange }) {
+  return <aside className="w-full shrink-0 border-b border-slate-200 bg-white p-4 lg:w-60 lg:border-b-0 lg:border-r"><nav aria-label="Authority sections" className="flex gap-2 overflow-x-auto lg:flex-col">{items.map((item) => <button key={item.id} onClick={() => onChange(item.id)} aria-current={active === item.id ? 'page' : undefined} className={`whitespace-nowrap rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${active === item.id ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>{item.label}</button>)}</nav></aside>
+}

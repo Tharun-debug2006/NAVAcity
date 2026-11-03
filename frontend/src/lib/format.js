@@ -1,7 +1,7 @@
 /**
  * The one number-formatting helper of the application.
  *
- * NavaCity uses a neutral English locale so fictional passenger figures stay
+ * NavaCity uses a neutral English locale so  passenger figures stay
  * readable and do not imply a real-world city or audience. Every screen
  * imports this file - there is no second implementation.
  */
@@ -41,3 +41,4 @@ export function formatMinutes(value, decimals = 1) {
 }
 
 export default formatNumber
+

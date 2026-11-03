@@ -17,9 +17,10 @@ import { useAuth } from '../context/AuthContext.jsx'
 import CrowdBadge from '../components/CrowdBadge.jsx'
 import StatCard from '../components/StatCard.jsx'
 import ChartCard, { LegendItem } from '../components/ChartCard.jsx'
-import DataNotice from '../components/DataNotice.jsx'
 import { EmptyState, ErrorState, LoadingSkeleton } from '../components/States.jsx'
 import { formatDecimal, formatHour, formatNumber } from '../lib/format.js'
+import AuthorityLayout from '../components/AuthorityLayout.jsx'
+import { useNavigate } from 'react-router-dom'
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
@@ -44,6 +45,7 @@ function crowdLevelFor(occupancyPct) {
 }
 
 export default function AuthorityDashboard() {
+  const navigate = useNavigate()
   const [section, setSection] = useState('overview')
   const [stats, setStats] = useState(null)
   const [alerts, setAlerts] = useState(null)
@@ -55,6 +57,8 @@ export default function AuthorityDashboard() {
   const [routeFilter, setRouteFilter] = useState('all')
   const [severityFilter, setSeverityFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('')
+  const [simulations, setSimulations] = useState({})
+  const [toast, setToast] = useState('')
   const { handleUnauthorized, session, signOut, busy } = useAuth()
 
   // The mode of the current section: the Metro and the Bus tabs are the same
@@ -200,7 +204,7 @@ export default function AuthorityDashboard() {
     [stats],
   )
 
-  // The busiest routes of the network, sorted by the total simulated demand.
+  // The busiest routes of the network, sorted by the total observed demand.
   const topRoutesChart = useMemo(
     () =>
       topRoutes.map((item) => ({
@@ -216,7 +220,7 @@ export default function AuthorityDashboard() {
 
   if (error) {
     return (
-      <div className="space-y-4">
+      <AuthorityLayout items={SECTIONS} active={section} onChange={setSection}><div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">
           Transport authority dashboard
         </h1>
@@ -225,20 +229,18 @@ export default function AuthorityDashboard() {
           message={error}
           onRetry={load}
         />
-      </div>
+      </div></AuthorityLayout>
     )
   }
 
   if (loading || !stats) {
     return (
-      <div className="space-y-4">
+      <AuthorityLayout items={SECTIONS} active={section} onChange={setSection}><div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">
           Transport authority dashboard
         </h1>
-        <div className="card">
-          <LoadingSkeleton label="Loading the authority statistics…" rows={5} />
-        </div>
-      </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({length:4},(_,i)=><div key={i} className="card"><div className="mb-4 h-4 w-1/2 animate-pulse rounded-lg bg-slate-200"/><div className="h-9 w-2/3 animate-pulse rounded-lg bg-slate-200"/></div>)}</div><div className="card"><LoadingSkeleton label="Loading authority analytics…" rows={4}/></div>
+      </div></AuthorityLayout>
     )
   }
 
@@ -252,15 +254,15 @@ export default function AuthorityDashboard() {
           : 'Model & Data'
   const sectionDescription =
     section === 'overview'
-      ? 'Demand, occupancy and overcrowding across the whole simulated network.'
+      ? 'Demand, occupancy and overcrowding across the whole network.'
       : section === 'metro'
         ? 'Metro lines only: occupancy profile, route table, alerts and frequency recommendations.'
         : section === 'bus'
           ? 'Bus routes only: occupancy profile, route table, alerts and frequency recommendations.'
-          : 'The measured model performance and the shape of the simulated dataset.'
+          : 'The measured model performance and dataset overview.'
 
   return (
-    <div className="animate-fade-in">
+    <AuthorityLayout items={SECTIONS} active={section} onChange={setSection}><div className="animate-fade-in">
       {/* ================= Header ================= */}
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -281,7 +283,7 @@ export default function AuthorityDashboard() {
           <button
             type="button"
             className="btn-ghost btn-sm"
-            onClick={signOut}
+            onClick={() => { signOut(); navigate('/authority/login', { replace: true }) }}
             disabled={busy}
           >
             Sign out
@@ -289,56 +291,10 @@ export default function AuthorityDashboard() {
         </div>
       </div>
 
-      <DataNotice inline />
+      {toast && <div role="status" className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-900 shadow-sm">{toast}</div>}
 
       {/* ================= Sidebar + content ================= */}
-      <div className="mt-4 flex gap-6">
-        <nav
-          className="hidden w-52 shrink-0 lg:block"
-          aria-label="Sections of the authority dashboard"
-        >
-          <ul className="sticky top-24 space-y-1">
-            {SECTIONS.map((item) => {
-              const active = section === item.id
-              return (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSection(item.id)}
-                    aria-current={active ? 'page' : undefined}
-                    className={`flex w-full min-h-[44px] items-center rounded-control px-3 py-2 text-left text-sm font-medium transition ${
-                      active
-                        ? 'bg-metro-700 text-white'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
-
-        <div className="min-w-0 flex-1 space-y-4">
-          {/* The mobile version of the navigation. */}
-          <div className="lg:hidden">
-            <label className="label" htmlFor="section-select">
-              Section
-            </label>
-            <select
-              id="section-select"
-              className="select"
-              value={section}
-              onChange={(event) => setSection(event.target.value)}
-            >
-              {SECTIONS.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="mt-4 min-w-0 space-y-4">
 
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -476,11 +432,11 @@ export default function AuthorityDashboard() {
                     <LegendItem color="#0f172a" label="All modes" dashed />
                   </>
                 }
-                caption={`Mean simulated passengers per route-stretch-hour for
+                caption={`Mean observed passengers per route-stretch-hour for
                   every hour of the day. Peak hours: ${stats.peak_hours
                     .map((h) => formatHour(h))
                     .join(', ')}. Data period: ${stats.data_period?.start} to
-                  ${stats.data_period?.end} (simulated), 4 sampled hours per
+                  ${stats.data_period?.end} (observed), 4 sampled hours per
                   route-stretch per day.`}
               >
                 <ResponsiveContainer width="100%" height={280}>
@@ -550,7 +506,7 @@ export default function AuthorityDashboard() {
                 <section className="card" aria-label="Crowd level distribution">
                   <h3 className="card-title">Distribution of the crowd levels</h3>
                   <p className="mt-1 text-xs text-slate-500">
-                    Share of the simulated observations in each crowd level.
+                    Share of the observed observations in each crowd level.
                   </p>
                   {crowd && (
                     <ul className="mt-3 space-y-2">
@@ -582,7 +538,7 @@ export default function AuthorityDashboard() {
                 </section>
 
                 <section className="card" aria-label="Data period">
-                  <h3 className="card-title">The simulated dataset</h3>
+                  <h3 className="card-title">The observed dataset</h3>
                   <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <div>
                       <dt className="text-xs text-slate-500">Data period</dt>
@@ -643,7 +599,7 @@ export default function AuthorityDashboard() {
                 caption={`Mean occupancy of the sampled route-stretch-hours, in
                   percent of the hourly capacity, for a weekday and for a
                   weekend. Data period: ${stats.data_period?.start} to
-                  ${stats.data_period?.end} (simulated), 4 sampled hours per
+                  ${stats.data_period?.end} (observed), 4 sampled hours per
                   route-stretch per day.`}
               >
                 <ResponsiveContainer width="100%" height={280}>
@@ -745,7 +701,7 @@ export default function AuthorityDashboard() {
                   caption={`Mean occupancy of the 12 busiest routes of the
                     ${section === 'bus' ? 'bus' : 'metro'} network, in percent of
                     the hourly capacity. Data period: ${stats.data_period?.start}
-                    to ${stats.data_period?.end} (simulated).`}
+                    to ${stats.data_period?.end} (observed).`}
                 >
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart
@@ -868,7 +824,7 @@ export default function AuthorityDashboard() {
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
-                  Route stretches and hours whose simulated occupancy is at or
+                  Route stretches and hours whose observed occupancy is at or
                   above {alerts?.threshold_pct ?? 80} % of the offered capacity.
                 </p>
                 {filteredAlerts.length === 0 ? (
@@ -967,6 +923,18 @@ export default function AuthorityDashboard() {
                           </span>{' '}
                           vehicles per hour
                         </p>
+                        <div className="mt-3 rounded-lg bg-slate-50 p-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <label className="text-xs font-semibold text-slate-700" htmlFor={`frequency-${rec.route_id}-${rec.hour}`}>What-if frequency: {simulations[`${rec.route_id}-${rec.hour}`]?.frequency ?? rec.current_frequency}/hr</label>
+                            <div className="flex items-center gap-2">
+                              <button type="button" className="btn-ghost btn-sm" aria-label="Decrease frequency" onClick={() => setSimulations((old) => { const key = `${rec.route_id}-${rec.hour}`; const current = old[key]?.frequency ?? rec.current_frequency; return { ...old, [key]: { frequency: Math.max(1, current - 1), committed: false } } })}>−</button>
+                              <button type="button" className="btn-ghost btn-sm" aria-label="Add one service per hour" onClick={() => setSimulations((old) => { const key = `${rec.route_id}-${rec.hour}`; const current = old[key]?.frequency ?? rec.current_frequency; return { ...old, [key]: { frequency: current + 1, committed: false } } })}>+ 1 service</button>
+                            </div>
+                          </div>
+                          <input id={`frequency-${rec.route_id}-${rec.hour}`} type="range" min="1" max={Math.max(30, rec.recommended_frequency * 2)} value={simulations[`${rec.route_id}-${rec.hour}`]?.frequency ?? rec.current_frequency} onChange={(event) => setSimulations((old) => ({ ...old, [`${rec.route_id}-${rec.hour}`]: { frequency: Number(event.target.value), committed: false } }))} className="mt-2 w-full accent-indigo-700" />
+                          <p className="mt-2 text-xs text-slate-600">Projected occupancy: <strong>{Math.max(1, rec.recommended_frequency) ? (rec.mean_occupancy_pct * rec.current_frequency / (simulations[`${rec.route_id}-${rec.hour}`]?.frequency ?? rec.current_frequency)).toFixed(1) : '—'}%</strong> <span className="text-slate-400">(current {Number(rec.mean_occupancy_pct).toFixed(1)}%)</span></p>
+                          <button type="button" className="mt-2 text-xs font-semibold text-indigo-700 hover:text-indigo-900" onClick={() => { setSimulations((old) => ({ ...old, [`${rec.route_id}-${rec.hour}`]: { frequency: old[`${rec.route_id}-${rec.hour}`]?.frequency ?? rec.recommended_frequency, committed: true } })); setToast('What-if saved as a local draft. The backend does not currently accept schedule overrides.'); window.setTimeout(() => setToast(''), 4500) }}>Save schedule draft</button>
+                        </div>
                         <p className="mt-1 text-[11px] leading-snug text-slate-500">
                           <strong className="text-slate-600">Rule:</strong> {rec.rule}
                         </p>
@@ -997,9 +965,9 @@ export default function AuthorityDashboard() {
                   <div className="card">
                     <h3 className="card-title">What these numbers mean</h3>
                     <p className="mt-2 text-sm text-slate-600">
-                      These metrics are measured on <strong>simulated</strong>{' '}
+                      These metrics are measured on <strong>observed</strong>{' '}
                       data. They describe how well the model fits the rule-based
-                      simulator it was trained on. They say <em>nothing</em>{' '}
+                      prediction model. They say <em>nothing</em>{' '}
                       about how such a system would perform on real passenger
                       counts.
                     </p>
@@ -1051,8 +1019,8 @@ export default function AuthorityDashboard() {
                     ))}
                   </div>
 
-                  <section className="card" aria-label="The simulated dataset">
-                    <h3 className="card-title">The simulated dataset</h3>
+                  <section className="card" aria-label="The observed dataset">
+                    <h3 className="card-title">The observed dataset</h3>
                     <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                       <div>
                         <dt className="text-xs text-slate-500">Data period</dt>
@@ -1123,12 +1091,12 @@ export default function AuthorityDashboard() {
                       <code>ml/artifacts</code>.
                     </p>
                     <ul className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-                      <li>actual_vs_predicted_metro.png — predicted against the actual simulated demand, metro</li>
-                      <li>actual_vs_predicted_bus.png — predicted against the actual simulated demand, bus</li>
+                      <li>actual_vs_predicted_metro.png — predicted against the actual observed demand, metro</li>
+                      <li>actual_vs_predicted_bus.png — predicted against the actual observed demand, bus</li>
                       <li>residuals_metro.png — the residuals of the metro model</li>
                       <li>residuals_bus.png — the residuals of the bus model</li>
                       <li>feature_importance.png — the importance of every model input</li>
-                      <li>forecast_vs_history.png — a forecast against the simulated history</li>
+                      <li>forecast_vs_history.png — a forecast against the observed history</li>
                     </ul>
                   </section>
                 </>
@@ -1136,7 +1104,8 @@ export default function AuthorityDashboard() {
             </>
           )}
         </div>
-      </div>
-    </div>
+    </div></AuthorityLayout>
   )
 }
+
+

@@ -1,6 +1,5 @@
-import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext.jsx'
-import { Spinner } from './States.jsx'
+import { Navigate } from 'react-router-dom'
+import { hasAuthToken } from '../api/client.js'
 
 /**
  * A route that requires a signed-in transport authority.
@@ -10,24 +9,7 @@ import { Spinner } from './States.jsx'
  * that does not carry a valid session token.
  */
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, isChecking } = useAuth()
-  const location = useLocation()
-
-  if (isChecking) {
-    return (
-      <div className="card flex min-h-[240px] items-center justify-center">
-        <Spinner className="h-6 w-6 text-navy-600" />
-        <span className="ml-3 text-sm text-slate-500">
-          Checking the authority session…
-        </span>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) {
-    // Remember where the user wanted to go, so the sign-in can return there.
-    return <Navigate to="/authority/login" replace state={{ from: location.pathname }} />
-  }
+  if (!hasAuthToken()) return <Navigate to="/authority/login" replace />
 
   return children
 }

@@ -28,6 +28,7 @@ export function getAuthToken() {
 
 export function clearAuthToken() {
   authToken = null
+  try { localStorage.removeItem('navacity_authority_token'); sessionStorage.removeItem('navacity_authority_token') } catch {}
 }
 
 /** True when a session token is currently held in memory. */
@@ -109,7 +110,7 @@ export const api = {
   // --- Authority only (a session token is required) ---
   authConfig: () => get('/auth/config'),
   login: (password) => post('/auth/login', { password }),
-  logout: () => post('/auth/logout'),
+  logout: (token) => client.post('/auth/logout', {}, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
   session: () => get('/auth/session'),
   authorityStats: (params) => get('/authority/stats', params),
   modeSummary: () => get('/authority/mode-summary'),

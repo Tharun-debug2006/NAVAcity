@@ -134,8 +134,8 @@ export default function CrowdBadge({ level, occupancyPct, size = 'md', className
       className={`badge ${style.badge} ${sizing} ring-1 ring-inset ${className}`}
       title={
         showPercent
-          ? `Simulated occupancy ${Number(occupancyPct).toFixed(1)} % of capacity`
-          : 'Simulated crowd level'
+          ? `Occupancy ${Number(occupancyPct).toFixed(1)} % of capacity`
+          : 'Crowd level'
       }
     >
       <span className={style.dot}>

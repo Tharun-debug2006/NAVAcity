@@ -14,33 +14,17 @@ import {
 } from 'recharts'
 import { api, errorMessage } from '../api/client.js'
 import { CROWD_COLORS, CROWD_SENTENCE, OccupancyBar } from '../components/CrowdBadge.jsx'
-import TransitMap from '../components/TransitMap.jsx'
-import ModeSwitch from '../components/ModeSwitch.jsx'
-import StationPicker from '../components/StationPicker.jsx'
+import MapContainer from '../components/MapContainer.jsx'
 import AnswerCard from '../components/AnswerCard.jsx'
 import AlternativeCard from '../components/AlternativeCard.jsx'
 import CollapsibleSection from '../components/CollapsibleSection.jsx'
 import ChartCard, { LegendItem } from '../components/ChartCard.jsx'
-import DataNotice from '../components/DataNotice.jsx'
 import { EmptyState, ErrorState, LoadingSkeleton } from '../components/States.jsx'
 import { formatDecimal, formatHour, formatNumber } from '../lib/format.js'
+import JourneyPlanner from '../components/JourneyPlanner.jsx'
 
-const HOURS = Array.from({ length: 24 }, (_, i) => i)
-
-// The window the model was trained on.  The date picker is limited to it and
-// the forecast card warns when a date outside it is used.
-const SUPPORTED_START = '2025-01-01'
-const SUPPORTED_END = '2025-06-30'
-
-/** A typical weekday inside the supported window. */
-function typicalWeekdayISO() {
-  // 2025-06-30 is a Monday and the last day of the simulated period.
-  return '2025-06-30'
-}
-
-function isWithinSupportedRange(value) {
-  return value >= SUPPORTED_START && value <= SUPPORTED_END
-}
+const localDateISO = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+const now = () => new Date()
 
 export default function PublicDashboard() {
   // ---- Static network -------------------------------------------------
@@ -50,9 +34,8 @@ export default function PublicDashboard() {
   // ---- User selection --------------------------------------------------
   const [mode, setMode] = useState('metro')
   const [routeId, setRouteId] = useState('M1')
-  const [hour, setHour] = useState(8)
-  const [date, setDate] = useState(typicalWeekdayISO())
-  const [isTypicalWeekday, setIsTypicalWeekday] = useState(true)
+  const [hour, setHour] = useState(now().getHours())
+  const [date, setDate] = useState(localDateISO(now()))
 
   // The origin and the destination of the journey.  They are filtered to the
   // stations the chosen route serves and they really determine the forecast.
@@ -60,7 +43,6 @@ export default function PublicDashboard() {
   const [destinationId, setDestinationId] = useState('')
 
   // The controls collapse into a summary bar once a result exists.
-  const [controlsOpen, setControlsOpen] = useState(false)
 
   // ---- Server data -----------------------------------------------------
   const [prediction, setPrediction] = useState(null)
@@ -247,8 +229,6 @@ export default function PublicDashboard() {
     [routeStops, destinationId],
   )
 
-  const isExtrapolation = prediction?.is_extrapolation === true
-  const dateOutOfRange = !isWithinSupportedRange(date)
 
   // The one-sentence answer a passenger reads first.
   const answerSentence = useMemo(() => {
@@ -317,19 +297,11 @@ export default function PublicDashboard() {
 
   return (
     <div className="space-y-4">
-      {/* ================= The answer comes first ================= */}
-      {predictionError && (
-        <ErrorState message={predictionError} onRetry={loadPrediction} />
-      )}
-
-      {predictionLoading && !prediction && (
-        <div className="card">
-          <LoadingSkeleton label="Working out the crowd level…" rows={3} />
-        </div>
-      )}
-
-      {prediction && (
-        <AnswerCard
+      {/* ================= Controls ================= */}
+      <div className="grid min-w-0 grid-cols-1 gap-6 overflow-hidden lg:grid-cols-12">
+      <div className="min-w-0 space-y-6 overflow-hidden lg:col-span-5">
+      <JourneyPlanner mode={mode} onModeChange={handleModeChange} routeId={routeId} routes={routes} onRouteChange={setRouteId} stops={routeStops} originId={originId} destinationId={destinationId} onOriginChange={setOriginId} onDestinationChange={setDestinationId} hour={hour} onHourChange={setHour} date={date} onDateChange={setDate} onSwap={() => { setOriginId(destinationId); setDestinationId(originId) }} />
+      {prediction && <AnswerCard
           crowdLevel={prediction.crowd_level}
           occupancyPct={prediction.predicted_occupancy_pct}
           headline={`${route.id} · ${route.name} — ${originName} to ${destinationName}`}
@@ -337,185 +309,9 @@ export default function PublicDashboard() {
           waitMinutes={formatDecimal(prediction.waiting_time_min, 1)}
           rideMinutes={formatDecimal(prediction.travel_time_min, 0)}
           totalMinutes={formatDecimal(prediction.total_journey_time_min, 0)}
-        >
-          {isExtrapolation && (
-            <p className="mt-3 rounded-control border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900" role="note">
-              {prediction.extrapolation_notice ||
-                'This date is outside the simulated period, so the forecast is an extrapolation.'}{' '}
-              The simulated data covers {SUPPORTED_START} to {SUPPORTED_END}.
-            </p>
-          )}
-          {dateOutOfRange && !isExtrapolation && (
-            <p className="mt-3 rounded-control border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900" role="note">
-              This date is outside the supported range ({SUPPORTED_START} to{' '}
-              {SUPPORTED_END}), so the forecast is an extrapolation.
-            </p>
-          )}
-          <p className="mt-3 text-[11px] leading-snug text-slate-500">
-            {formatNumber(prediction.predicted_passengers)} passengers per hour
-            on the busiest stretch of this journey, which is{' '}
-            {formatDecimal(prediction.predicted_occupancy_pct, 1)} % of the
-            capacity offered by the planned service (
-            {prediction.service_frequency} vehicles per hour ×{' '}
-            {prediction.vehicle_capacity} seats = {formatNumber(prediction.hourly_capacity)}{' '}
-            places).
-          </p>
-        </AnswerCard>
-      )}
-
-      {/* ================= Controls ================= */}
-      <section className="card" aria-label="Journey details">
-        {prediction && !controlsOpen ? (
-          <button
-            type="button"
-            onClick={() => setControlsOpen(true)}
-            className="flex w-full items-center justify-between gap-3 text-left"
-            aria-expanded={false}
-          >
-            <span className="text-sm text-slate-700">
-              <span className="font-semibold">
-                {mode === 'metro' ? 'Metro' : 'Bus'} · {routeId} {route.name}
-              </span>
-              {' · '}
-              {isTypicalWeekday ? 'Typical weekday' : date} · {formatHour(hour)}
-            </span>
-            <span className="shrink-0 text-sm font-semibold text-metro-700">Change</span>
-          </button>
-        ) : (
-          <>
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-base font-semibold text-slate-900">
-                Plan your journey
-              </h2>
-              {prediction && (
-                <button
-                  type="button"
-                  onClick={() => setControlsOpen(false)}
-                  className="text-sm font-semibold text-metro-700"
-                >
-                  Done
-                </button>
-              )}
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* 1. Mode */}
-              <div>
-                <span className="label" id="mode-label">
-                  Travel mode
-                </span>
-                <ModeSwitch
-                  value={mode}
-                  onChange={handleModeChange}
-                  id="public-mode-switch"
-                />
-              </div>
-
-              {/* 2. Route */}
-              <div>
-                <label className="label" htmlFor="route-select">
-                  {mode === 'metro' ? 'Metro line' : 'Bus route'}
-                </label>
-                <select
-                  id="route-select"
-                  className="select"
-                  value={routeId}
-                  onChange={(event) => setRouteId(event.target.value)}
-                >
-                  {routes.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.id} · {item.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* 3. Journey */}
-            <div className="mt-4 border-t border-slate-100 pt-4">
-              <p className="label">Your journey</p>
-              <StationPicker
-                originId={originId}
-                destinationId={destinationId}
-                stops={routeStops}
-                onOriginChange={setOriginId}
-                onDestinationChange={setDestinationId}
-                onSwap={() => {
-                  setOriginId(destinationId)
-                  setDestinationId(originId)
-                }}
-              />
-              <p className="mt-2 text-[11px] leading-snug text-slate-500">
-                Only the {routeStops.length} stations and stops served by{' '}
-                {route.id} are listed. The forecast is made for the busiest
-                stretch of the journey you choose.
-              </p>
-            </div>
-
-            {/* 4. Time */}
-            <div className="mt-4 border-t border-slate-100 pt-4">
-              <p className="label">When are you travelling?</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="label" htmlFor="hour-select">
-                    Leave at
-                  </label>
-                  <select
-                    id="hour-select"
-                    className="select"
-                    value={hour}
-                    onChange={(event) => setHour(Number(event.target.value))}
-                  >
-                    {HOURS.map((value) => (
-                      <option key={value} value={value}>
-                        {formatHour(value)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="label" htmlFor="date-input">
-                    Date
-                  </label>
-                  <input
-                    id="date-input"
-                    type="date"
-                    className="select"
-                    value={date}
-                    min={SUPPORTED_START}
-                    max={SUPPORTED_END}
-                    onChange={(event) => {
-                      setDate(event.target.value)
-                      setIsTypicalWeekday(false)
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDate(typicalWeekdayISO())
-                    setIsTypicalWeekday(true)
-                  }}
-                  aria-pressed={isTypicalWeekday}
-                  className={`btn btn-sm ${
-                    isTypicalWeekday
-                      ? 'bg-metro-700 text-white'
-                      : 'border border-slate-300 bg-white text-slate-700'
-                  }`}
-                >
-                  Typical weekday
-                </button>
-                <span className="text-[11px] text-slate-500">
-                  The simulated data covers {SUPPORTED_START} to {SUPPORTED_END}.
-                  Dates outside that window are extrapolations.
-                </span>
-              </div>
-            </div>
-          </>
-        )}
-      </section>
+        ><p className="mt-3 text-xs text-slate-600">{formatNumber(prediction.predicted_passengers)} passengers per hour · {formatDecimal(prediction.predicted_occupancy_pct, 1)}% of planned capacity.</p></AnswerCard>}
+      </div><div className="min-w-0 space-y-6 overflow-hidden lg:col-span-7">
+      <section className="card min-w-0 overflow-hidden" aria-label="Route summary"><p className="text-sm font-semibold text-slate-900">{mode === 'metro' ? 'Metro' : 'Bus'} · {routeId} {route.name}</p><p className="mt-1 text-sm text-slate-600">{originName} → {destinationName} · {date} · {formatHour(hour)}</p></section>
 
       {/* ================= Less crowded alternatives ================= */}
       {prediction && (
@@ -543,7 +339,7 @@ export default function PublicDashboard() {
             <div className="mt-3">
               <EmptyState
                 title="No alternative found"
-                message="The simulated network does not offer another route for this journey."
+                message="The observed network does not offer another route for this journey."
               />
             </div>
           )}
@@ -595,16 +391,13 @@ export default function PublicDashboard() {
               <LegendItem color={CROWD_COLORS.Critical} label="Critical" />
             </>
           }
-          caption={`Expected passengers per hour on the busiest stretch of the
-            journey, for every hour of the day. The chosen hour is marked with a
-            vertical line. The bar colour is the crowd level of that hour. Data
-            period: ${SUPPORTED_START} to ${SUPPORTED_END} (simulated).`}
+          caption="Expected passengers per hour on the busiest stretch of the journey. The selected departure hour is highlighted."
         >
           {!demandChart.length ? (
             <LoadingSkeleton label="Loading the hourly forecast…" rows={3} />
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={demandChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={310}>
+              <BarChart data={demandChart} margin={{ top: 16, right: 20, left: 32, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis
                   dataKey="label"
@@ -613,7 +406,7 @@ export default function PublicDashboard() {
                   label={{
                     value: 'Hour of day',
                     position: 'insideBottom',
-                    offset: -2,
+                    offset: -8,
                     fontSize: 11,
                     fill: '#64748b',
                   }}
@@ -655,80 +448,16 @@ export default function PublicDashboard() {
 
       {/* ================= The network map ================= */}
       {network && (
-        <CollapsibleSection
-          title="Network map"
-          subtitle={`${network.metro_lines.length} metro lines · ${network.bus_routes.length} bus routes · ${network.places.length} stations and stops`}
-        >
-          <div className="h-[420px] w-full">
-            <TransitMap
-              network={network}
-              selectedRouteId={routeId}
-              onSelectRoute={(id, selectedMode) => {
-                handleModeChange(selectedMode)
-                setRouteId(id)
-              }}
-            />
-          </div>
-        </CollapsibleSection>
+        <div className="h-[420px] min-h-[380px] w-full min-w-0 overflow-hidden">
+          <MapContainer network={network} selectedRouteId={routeId} mode={mode} originId={originId} destinationId={destinationId} onSelectStation={(id) => { if (!originId || originId === destinationId) setOriginId(id); else setDestinationId(id) }} onSelectRoute={(id, selectedMode) => { handleModeChange(selectedMode); setRouteId(id) }} />
+        </div>
       )}
 
-      {/* ================= How the crowd levels are defined ================= */}
-      <CollapsibleSection
-        title="How crowd levels are defined"
-        subtitle="In plain language"
-      >
-        <ul className="space-y-2 text-sm text-slate-600">
-          <li className="flex items-start gap-2">
-            <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-crowd-low" aria-hidden="true" />
-            <span>
-              <strong className="text-slate-800">Low</strong> (0–40 %): plenty of
-              room, you will usually find a seat.
-            </span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-crowd-moderate" aria-hidden="true" />
-            <span>
-              <strong className="text-slate-800">Moderate</strong> (40–65 %):
-              comfortable, but a few people may wait for the next service.
-            </span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span
-              className="mt-1 h-2.5 w-2.5 shrink-0 bg-crowd-high"
-              style={{ clipPath: 'polygon(50% 0, 100% 100%, 0 100%)' }}
-              aria-hidden="true"
-            />
-            <span>
-              <strong className="text-slate-800">High</strong> (65–85 %): crowded,
-              boarding is slow and queues form.
-            </span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span
-              className="mt-1 h-2.5 w-2.5 shrink-0 bg-crowd-critical"
-              style={{
-                clipPath:
-                  'polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%)',
-              }}
-              aria-hidden="true"
-            />
-            <span>
-              <strong className="text-slate-800">Critical</strong> (85 %+):
-              overcrowded, some passengers may be left behind.
-            </span>
-          </li>
-        </ul>
-        <p className="mt-3 border-t border-slate-100 pt-2 text-[11px] leading-snug text-slate-500">
-          How full the service is, as a share of the capacity offered by the
-          planned service (vehicle capacity × vehicles per hour). The 85 %
-          cut-off corresponds to roughly 0.85 m² of space per standing passenger
-          in a crush-loaded vehicle. The expected wait is the headway of the
-          service multiplied by 0.45 for a metro and 0.50 for a bus, plus 1.2
-          minutes when the service is above 85 % full.
-        </p>
-      </CollapsibleSection>
 
-      <DataNotice inline />
+      </div></div>
     </div>
   )
 }
+
+
+
